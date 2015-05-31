@@ -1,4 +1,4 @@
-application: cycleday
+application: cycleday-hrd
 version: 1
 runtime: python
 api_version: 1
