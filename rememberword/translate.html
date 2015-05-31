@@ -1,0 +1,117 @@
+<html>
+  <head>
+    <title>Memorable Google Translate</title>
+  </head>
+  <body>
+	<input id="source" type="text" onkeydown="handleKey(event)">
+	<input type="submit" value="Translate" onclick="doTranslate()">
+	<!-- input type="submit" value="WriteTo" onclick="doWriteCookie()">
+	<input type="submit" value="ReadFrom" onclick="doReadCookie()" -->
+	<br/>
+    <div id="translation"></div>
+    <div id="debug" />
+    <script>
+	function handleKey(e) {
+		var keynum;
+		var keychar;
+		var numcheck;
+		if(window.event) {
+			// IE
+			keynum = e.keyCode;
+		} else if(e.which) {
+			// Netscape/Firefox/Opera
+			keynum = e.which;
+		}
+		// enter key
+		if (13 == keynum) {
+			doTranslate();
+		}
+	}
+
+	function _gel(eid) {
+	    return document.getElementById(eid);
+    }
+
+    function translateText(response) { 
+        _gel('translation').innerHTML = response.data.translations[0].translatedText;
+    }
+
+	function doWriteCookie() {
+		var d = new Date();
+		var month = d.getMonth() + 1;
+		var value = d.getFullYear() + '-' + month + '-' + d.getDate();
+		var name = _gel('source').value;
+		writeCookie(name, value, ',');
+		doReadCookie();
+	}
+
+	function doReadCookie() {
+		readCookie(',');
+	}
+
+	function readCookie(delimit) {
+	  if (document.cookie == '') {
+	    return false;
+	  }
+	  var fC,lC;
+	  var mcookie = unescape(document.cookie);
+	  _gel('debug').innerHTML = '<br/>';
+	  var arr = mcookie.split(delimit);
+	  for (j = 0; j < arr.length; j++) {
+		_gel('debug').innerHTML += '<br/>' + arr[j];
+	  }
+	}
+
+	function writeCookie(name, value, delimit) {
+		// do strip??
+	  if ('' == name) {
+		return false;
+	  }
+	  if (document.cookie == '') {
+	    document.cookie = escape( name + "=" + value );
+	    return false;
+	  }
+	  var B4,Af,fC,lC;
+	  var mcookie = unescape(document.cookie);
+	  var ncookie;
+	  fC = mcookie.indexOf(name);
+	  var ph = fC + name.length;
+	  if ((fC != -1) && (mcookie.charAt(ph) == '=')) {
+	      B4 = mcookie.substring(0,fC);
+	      fC += name.length + 1;
+	      lC = mcookie.indexOf(delimit, fC);
+	      if (lC == -1) lC = mcookie.length;
+	      if (lC == mcookie.length) {
+	        ncookie = B4 + name + "=" + value;
+	        document.cookie = escape(ncookie);
+	        return true;
+	      } else {   
+	        Af = mcookie.substring(lC,mcookie.length);
+	        ncookie = B4 + name + "=" + value + Af;
+	        document.cookie = escape(ncookie);
+	        return true;
+	      }   
+	  } else {
+	      ncookie = mcookie + delimit + name + "=" + value;
+	      document.cookie = escape(ncookie);
+	      return false;
+	  }
+	}
+	
+	doReadCookie();
+
+    </script>
+    <script>
+	function doTranslate() {
+      var newScript = document.createElement('script');
+      newScript.type = 'text/javascript';
+      var sourceText = escape(_gel('source').value);
+      var source = 'https://www.googleapis.com/language/translate/v2?key=AIzaSyDnz3pf-uhM0CirG9MwgtEXFQr41zc22Es&source=en&target=zh-CN&callback=translateText&q=' + sourceText;
+      newScript.src = source;
+      // When we add this script to the head, the request is sent off.
+      document.getElementsByTagName('head')[0].appendChild(newScript);
+      doWriteCookie();
+    }
+    </script>
+  </body>
+</html>
